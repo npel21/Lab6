@@ -1,0 +1,37 @@
+1. Changes the message displayed on an illegal move to “Not in this game.”
+I started in the functions window to find ProcessMoveRequest which handles all the moves.
+I traced through the function to find where the program checks for valid moves. It was somewhat easy to find 
+where the message box was being created, but it took much longer to track down the string by its hex address.
+It also was tough to figure out the changing of permissions as at first I was confused why my new string would
+not write. I did some Googling to figure out how to use the VirtualProtect function.
+
+
+2. Sets the total won to 1000 as shown by the Game->Statistics dialog.
+When a game was won, I noticed Freecell called RegSetValueExW when stepping through with the debugger.
+From there I had to determine the location of where it was writing and then Googling how to set a registry value
+at a specific path similar to how the game increased the value.
+
+3. The next valid move wins the game.
+This problem seemed easy at first. I used the debugger and stepped through the F10 cheat menu and learned about
+the cheat flag. Setting the flag at the correct address allowed any move to win the game. I could not figure out
+how to allow only valid moves to win. My DLL causes any move, valid or invalid, to win the game.
+
+4. Freecell contains a cheat code, that, when Ctrl – Shift - F10 is pressed, a dialog is presented to
+the user to “Abort, Retry, or Ignore”. If the user clicks “Abort”, the game is automatically won.
+Your DLL should change this cheat-code sequence to Ctrl - Shift – F6.
+5. Ctrl-Shift-F2 wins the game.
+These two sort of went together. The first thing I did was follow the keyboard shortcuts slideshow uploaded
+on Isidore. I went through the MSDN pages of accelerator tables, create, load, and translate. Those pages
+had an example that went through the entire process of creating, loading, and translating the table which was
+really helpful. Dealing with the HWND was annoying. To use FindWindow you need the exact name of the parent
+window. There was a way to just get the window by class name, but the program spy++ only comes with
+retail Visual Studios. Using the class window name might have been the easiest way to do this. I ended
+up using the GetActiveWindow function which did not seem to work but seemed the next best way to
+accomplish getting the HWND of Freecell.
+
+Because I could not get the window class, the keyboard combinations
+did not work but I think I setup the table correctly based on the F10 address of the original cheat menu that would
+directly translate to appear when ctrl + shift  + F6 were used.
+
+As far as the F2 menu, it was setup to automatically win by performing similar to "Abort" in the cheat menu but
+done without displaying the cheat menu. As with 4 above, I was not able to test this.
